@@ -33,7 +33,6 @@ function createSceneS090(core) {
 
         // n秒経過
         if (countFrame == CORE_FPS * 5) {
-            console.log('next s100')
             // s100 プレイ画面を表示
             core.replaceScene(createSceneS100(core));
         }

@@ -66,7 +66,7 @@ function createSceneS100(core) {
         }
         // ノーツの出現時間(秒) * 1秒あたりのスクロール数(px) 300px
         timming = note[1] * pxPerSec;
-        console.log(timming + ",", lane);
+        // console.log(timming + ",", lane);
 
         // surface1.context.fillStyle = "#B1CFFC";
         surface1.context.fillRect(lane, notesLength - timming - notesHight, 149, notesHight);
@@ -136,7 +136,7 @@ function createSceneS100(core) {
     // タッチイベントを設定
     sprite.addEventListener('touchstart', function (evt) {
         var touchTime = currentTime.getTime() - startTime.getTime();
-        console.log('touchstart:  ' + touchTime + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
+        // console.log('touchstart:  ' + touchTime + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
         labelTapTime.text = 'tap ' + touchTime + 'ms';
         labelGapTime.text = 'gap ' + (touchTime - judgeTime) + 'ms';
 
@@ -155,7 +155,7 @@ function createSceneS100(core) {
         if (judgeLine.intersect(judgeNote)) {
             if (judgeFirstFlag) {
                 judgeTime = currentTime.getTime() - startTime.getTime();
-                console.log('judgeLine:  ' + judgeTime + 'ms');
+                // console.log('judgeLine:  ' + judgeTime + 'ms');
                 labeljudgeTime.text = 'judge ' + judgeTime + 'ms';
                 judgeFirstFlag = false;
             }
@@ -191,11 +191,10 @@ function createSceneS100(core) {
         // 60fpsは Event.ENTER_FRAME が1秒に60回
         // 300pxが1秒で移動するためには？ 300px / 60 = 5px ということで、5px を加算
         this.y += 5;
-        console.log('y: ' + this.y);
 
         if (this.y > notesHight) {
             this.y = 0;
-            console.log('notes end... next scene')
+            // console.log('notes end... next scene')
             // todo フェードアウトしてからのー
             core.replaceScene(createSceneS200(core));
         }

@@ -42,7 +42,7 @@ function createSceneS010(core) {
             core.replaceScene(createSceneS020(core));
         }
 
-        console.log(countFrame);
+        // console.log(countFrame);
         countFrame++;
 
     });

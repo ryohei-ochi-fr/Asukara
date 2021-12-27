@@ -51,11 +51,11 @@
 		function launchGame() {
 			goFullScreen();
 
-			// 無名関数と遅延実行 200ms(ミリ秒)
+			// 無名関数と遅延実行 n00ms(ミリ秒)
 			// windowサイズが最大化直後で正しく取得できない対策
 			window.setTimeout(function () {
 				startGame();
-			}, 200);
+			}, 500);
 
 		}
 	</script>
