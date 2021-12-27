@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+
+	<meta name="viewport" content="width=device-width,height=device-height,user-scalable=no">
+
+	<title>enchant.js 検証コード</title>
+	<script type="text/javascript" src="inc/enchant.js"></script>
+	<script type="text/javascript" src="inc/nowLoading.js"></script>
+	<script type="text/javascript" src="inc/fullScreen.js"></script>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Vujahday+Script&display=swap" rel="stylesheet">
+	<style>
+		/* font-family: 'Noto Sans JP', sans-serif; */
+		@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap');
+	</style>
+
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+
+<!-- 画面単体 -->
+<script type="text/javascript" src="js/s010.js"></script>
+<script type="text/javascript" src="js/s020.js"></script>
+<script type="text/javascript" src="js/s030.js"></script>
+
+<script type="text/javascript" src="js/midi001.js"></script>
+
+	<script type="text/javascript" src="js/game.js"></script>
+	<script type="text/javascript">
+		function launchGame() {
+			goFullScreen();
+			startGame();
+		}
+	</script>
+
+</head>
+
+<body>
+	<div>スマホの画面を横にして起動してください♪</div>
+	<div><button type=button id="btnFullscreen" onclick="launchGame();">起動</button></div>
+	<div id="enchant-stage"></div>
+	<div>
+		<hr />
+		<footer>
+			<p>&copy; 2021-2022 <a href="https://twitter.com/AshitaKaraage">明日、唐揚げを食べたい</a></p>
+		</footer>
+	</div>
+
+</body>
+
+</html>
