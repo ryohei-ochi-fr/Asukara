@@ -1,14 +1,14 @@
-// メニュー画面生成
-function createSceneS040(core) {
+// クレジット画面生成
+function createSceneS300(core) {
     var scene = new Scene();
     scene.backgroundColor = '#000000';
 
     // 背景を生成
     var bg = new Sprite(SCREEN_WIDTH, SCREEN_HEIGHT);
-    bg.image = core.assets['img/s040.png'];
+    bg.image = core.assets['img/s300.png'];
     scene.addChild(bg);
 
-    // プレイボタン
+    // エンドボタン
     var buttonWidth = 150;
     var buttonHeight = 75;
     var playButton = new Sprite(buttonWidth, buttonHeight);
@@ -24,16 +24,16 @@ function createSceneS040(core) {
 
     // タッチイベントを設定
     playButton.addEventListener('touchstart', function (evt) {
-        core.assets['mp3/00093_The Snowmobile.mp3'].stop();
-        core.replaceScene(createSceneS090(core));
+        // core.assets['mp3/00093_The Snowmobile.mp3'].stop();
+        core.replaceScene(createSceneS030(core));
 
     });
 
     scene.addChild(playButton);
 
-    // サウンドロゴ
+    // todo クレジット画面のBGMを探す
     // todo ループの処理
-    core.assets['mp3/00093_The Snowmobile.mp3'].play();
+    // core.assets['mp3/00093_The Snowmobile.mp3'].play();
 
     // シーンを返す
     return scene;

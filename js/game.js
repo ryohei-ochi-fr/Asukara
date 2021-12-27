@@ -58,9 +58,16 @@ function startGame() {
 		// s040 メニュー画面
 		'img/s040.png',
 		'mp3/00093_The Snowmobile.mp3',
+		// s090 ローディング画面(曲紹介だけで何もしていない)
+		'img/s090.png',
+		// s100 プレイ画面
+		'img/s100.png',
+		// s200 スコア画面
+		'img/s200.png',
+		// s300 クレジット画面
+		'img/s300.png',
 		// other
 		'mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3',
-		'img/s100.png',
 	);
 
 	game.onload = function () {
@@ -69,9 +76,17 @@ function startGame() {
 
 		// s010 チームロゴ画面の読み込み
 		// s010 -> s020 -> s030 と遷移する
+
 		// デバッグ時はs030へすっ飛ばす
 		// var currentScene = createSceneS030(game);
-		var currentScene = createSceneS010(game);
+
+		// デバッグ時はs090へすっ飛ばす
+		// var currentScene = createSceneS090(game);
+
+		// デバッグ時はs100へすっ飛ばす
+		var currentScene = createSceneS100(game);
+
+		// var currentScene = createSceneS010(game);
 
 		// todo 前画面の要素を削除するべし
 

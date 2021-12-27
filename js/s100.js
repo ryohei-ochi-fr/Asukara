@@ -1,45 +1,54 @@
-function createSceneS100() {
+function createSceneS100(core) {
+
+    var scene = new Scene();
+
     // 背景を生成
     var bg = new Sprite(SCREEN_WIDTH, SCREEN_HEIGHT);
-    bg.image = game.assets['img/s100.png'];
-    game.rootScene.addChild(bg);
+    bg.image = core.assets['img/s100.png'];
+    scene.addChild(bg);
 
-    bgm = game.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'];
+    bgm = core.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'];
 
-    // イベントのログ表示
+    // イベントのログ表示用 丸め関数
     var round = function (num) {
         return Math.round(num * 1e3) / 1e3;
     };
-    // game.rootScene.on('touchstart', function (evt) {
-    // 	console.log('touchstart (' + round(evt.x) + ', ' + round(evt.y) + ')');
-    // });
-    // game.rootScene.on('touchmove', function (evt) {
-    // 	console.log('touchmove (' + round(evt.x) + ', ' + round(evt.y) + ')');
-    // });
-    // game.rootScene.on('touchend', function (evt) {
-    // 	console.log('touchend (' + round(evt.x) + ', ' + round(evt.y) + ')');
-    // });
 
+    // ノーツを配置するための譜面の幅
+    const notesMaxWidth = 450;
 
-    // 譜面を描画
-    // スプライトを生成 300px x 63sec
-    var sprite1 = new Sprite(450, 18900 * 3);
+    // ノーツ1音を描画する高さ(px)
+    const notesHight = 50;
+
+    // ノーツ1音を描画する幅(px)
+    const notesWidth = 150;
+
+    // 1秒あたりの譜面移動量(px)
+    const pxPerSec = 300;
+
+    // 曲の長さ(秒)
+    const midiDuration = 100;
+
+    // 譜面の長さ 300px x 100sec
+    const notesLength = pxPerSec * midiDuration;
+
+    // 譜面のスプライトを生成
+    var sprite1 = new Sprite(notesMaxWidth, notesLength);
     // Surfaceオブジェクトを生成しスプライトに連結
-    var surface1 = new Surface(450, 18900 * 3);
+    var surface1 = new Surface(notesMaxWidth, notesLength);
     sprite1.image = surface1;
-    game.rootScene.addChild(sprite1);
+    scene.addChild(sprite1);
 
-    // ノーツを描く
+    // 譜面にノーツを描く色を先行して設定
     surface1.context.fillStyle = "#B1CFFC";
 
-    // surface1.context.fillRect(0, 18900 - 50, 149, 50);
     // 譜面の初期位置
     sprite1.x = 95 + 1
-    sprite1.y = 0 - 18900 * 3
+    sprite1.y = 0 - notesLength;
 
     // todo なんか判定エリアとずれてない？
 
-    var lane = 0
+    var lane = 0;
     midiData.forEach(note => {
         // midiの1音のデータ(ノーツ)を書き出してみる
         // console.log(note.midi, note.time, note.duration, note.name);
@@ -55,71 +64,74 @@ function createSceneS100() {
                 lane = 300;
                 break;
         }
-        timming = note[1] * 300
+        // ノーツの出現時間(秒) * 1秒あたりのスクロール数(px) 300px
+        timming = note[1] * pxPerSec;
         console.log(timming + ",", lane);
 
-        surface1.context.fillStyle = "#B1CFFC";
-        surface1.context.fillRect(lane, 18900 * 3 - timming - 50, 149, 50);
+        // surface1.context.fillStyle = "#B1CFFC";
+        surface1.context.fillRect(lane, notesLength - timming - notesHight, 149, notesHight);
 
-        // game.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'].play();
+        // console.log('notes is: ' + (notesLength - timming - notesHight));
 
     })
 
     // 検証用 判定ラインを生成
-    var judgeLine = new Sprite(450, 1);
+    var judgeLine = new Sprite(notesMaxWidth, 1);
     // Surfaceオブジェクトを生成しスプライトに連結
-    var surface = new Surface(450, 1);
+    var surface = new Surface(notesMaxWidth, 1);
     // 四角形を描く 
     surface.context.fillStyle = "#FF0000";
-    surface.context.fillRect(0, 0, 450, 1);
+    surface.context.fillRect(0, 0, notesMaxWidth, 1);
     // スプライトの設定諸々
     judgeLine.image = surface;
     judgeLine.x = 95;
-    judgeLine.y = 285 + 50;
-    game.rootScene.addChild(judgeLine);
+    judgeLine.y = 285 + notesHight;
+    scene.addChild(judgeLine);
 
-    // 検証用 判定ノーツを生成
-    var judgeNote = new Sprite(450, 50);
+    // 検証用 判定ノーツを生成 メトロノーム的な緑の帯
+    var judgeNote = new Sprite(notesMaxWidth, notesHight);
     // Surfaceオブジェクトを生成しスプライトに連結
-    var surface = new Surface(450, 50);
+    var surface = new Surface(notesMaxWidth, notesHight);
     // 四角形を描く 半透明
     surface.context.fillStyle = "#00FF0080";
-    surface.context.fillRect(0, 0, 450, 50);
+    surface.context.fillRect(0, 0, notesMaxWidth, notesHight);
     // スプライトの設定諸々
     judgeNote.image = surface;
     judgeNote.x = 95;
-    judgeNote.y = 0 - 50;
-    game.rootScene.addChild(judgeNote);
+    judgeNote.y = 0 - notesHight;
+    // コメントアウトして非表示
+    // scene.addChild(judgeNote);
 
     // 判定ゾーンを生成
-    var sprite = new Sprite(450, 50);
+    var sprite = new Sprite(notesMaxWidth, notesHight);
     // Surfaceオブジェクトを生成しスプライトに連結
-    var surface = new Surface(450, 50);
+    var surface = new Surface(notesMaxWidth, notesHight);
     // 四角形を描く 透明度 0x80h = 50%(128/256)
     surface.context.fillStyle = "#E7B3FA80";
-    surface.context.fillRect(0, 0, 450 - 1, 50);
+    surface.context.fillRect(0, 0, notesMaxWidth - 1, notesHight);
     // スプライトの設定諸々
     sprite.image = surface;
     sprite.x = 95 + 1
     sprite.y = 285
-    game.rootScene.addChild(sprite);
+    scene.addChild(sprite);
 
     // 時間の画面表示
+    // todo このブロックはデバッグ用なので後で消す
     labelTime = new Label('current 0ms');
     labelTime.y = 0;
-    game.rootScene.addChild(labelTime);
+    scene.addChild(labelTime);
 
     labeljudgeTime = new Label('judge 0ms');
     labeljudgeTime.y = 20;
-    game.rootScene.addChild(labeljudgeTime);
+    scene.addChild(labeljudgeTime);
 
     labelTapTime = new Label('tap 0ms');
     labelTapTime.y = 40;
-    game.rootScene.addChild(labelTapTime);
+    scene.addChild(labelTapTime);
 
     labelGapTime = new Label('gap 0ms');
     labelGapTime.y = 60;
-    game.rootScene.addChild(labelGapTime);
+    scene.addChild(labelGapTime);
 
     // タッチイベントを設定
     sprite.addEventListener('touchstart', function (evt) {
@@ -139,35 +151,35 @@ function createSceneS100() {
     var judgeFirstFlag = true;
 
     // スプライトの当たり判定
-    judgeLine.on('enterframe', function (evt) {
-        if (judgeLine.intersect(judgeNote)){
-            if(judgeFirstFlag){
+    judgeLine.on(Event.ENTER_FRAME, function (evt) {
+        if (judgeLine.intersect(judgeNote)) {
+            if (judgeFirstFlag) {
                 judgeTime = currentTime.getTime() - startTime.getTime();
                 console.log('judgeLine:  ' + judgeTime + 'ms');
                 labeljudgeTime.text = 'judge ' + judgeTime + 'ms';
                 judgeFirstFlag = false;
             }
-        }else{
+        } else {
             judgeFirstFlag = true;
         }
     });
 
-    sprite1.on('enterframe', function (evt) {
+    sprite1.on(Event.ENTER_FRAME, function (evt) {
         if (callFlag) {
             // ここで60フレーム待っているから、初タップまでの序奏開始時間1秒は無視でよし
             if (callFps >= 60) {
                 callFlag = false;
                 // 判定ライン 100ms
                 // startTime = new Date();
-                // game.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'].volume = 0.5;
-                // game.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'].play();
+                // core.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'].volume = 0.5;
+                // core.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'].play();
                 bgm.play();
                 bgm.volume = 0.2;
 
                 // todo 正確にするならコールバック
                 startTime = new Date();
 
-            }else{
+            } else {
                 startTime = new Date();
                 currentTime = new Date();
             }
@@ -175,17 +187,23 @@ function createSceneS100() {
         var touchTime = currentTime.getTime() - startTime.getTime();
         labelTime.text = 'current ' + touchTime + 'ms';
 
-        // this.y += 10 / 4;
-        this.y += 10 / 2;
-        // this.y += 10;
-        // this.y += 10 * 2;
+        // ノーツを描画したのは 1秒 = 300px
+        // 60fpsは Event.ENTER_FRAME が1秒に60回
+        // 300pxが1秒で移動するためには？ 300px / 60 = 5px ということで、5px を加算
+        this.y += 5;
+        console.log('y: ' + this.y);
 
-        if (this.y > 18900) {
+        if (this.y > notesHight) {
             this.y = 0;
+            console.log('notes end... next scene')
+            // todo フェードアウトしてからのー
+            core.replaceScene(createSceneS200(core));
         }
 
         judgeNote.y += 10 / 2;
-        if(judgeNote.y > 360){
+
+        // メトロノーム的な緑のやつのループ
+        if (judgeNote.y > 360) {
             judgeNote.y = 0 - 115;
         }
 
@@ -194,5 +212,8 @@ function createSceneS100() {
 
         callFps++;
     });
+
+    // シーンを返す
+    return scene;
 
 }
