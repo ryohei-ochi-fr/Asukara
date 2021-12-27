@@ -24,10 +24,10 @@ enchant.Surface.prototype.element = function () {
 // これはたぶんHTML5ゲームの特徴で、
 // プログラムの変数とは関係なくHTMLの要素として記録されているので、
 // 別にHTMLの要素を消す必要があるようです。
-function removeScene(scene){
-    while(scene.firstChild){
-        scene.removeChild(scene.firstChild);
-    }
+function removeScene(scene) {
+	while (scene.firstChild) {
+		scene.removeChild(scene.firstChild);
+	}
 }
 
 var bgm;
@@ -36,7 +36,6 @@ var labeljudgeTime;
 var labelTapTime;
 var labelGapTime;
 var judgeTime;
-var countFrame = 0;
 
 
 // ここからゲームが始まるよー
@@ -55,6 +54,10 @@ function startGame() {
 		'img/s020.png',
 		// s030 スタート画面
 		'img/s030.jpg',
+		'mp3/00039_hajimari.mp3',
+		// s040 メニュー画面
+		'img/s040.png',
+		'mp3/00093_The Snowmobile.mp3',
 		// other
 		'mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3',
 		'img/s100.png',
@@ -63,48 +66,20 @@ function startGame() {
 	game.onload = function () {
 		// ルートシーンの背景色
 		game.rootScene.backgroundColor = "#ffffff";
-		game.rootScene.addEventListener(Event.ENTER_FRAME, function () {
-			// n秒経過
-			if (countFrame == CORE_FPS * 6) {
-				// s020 注意書きページを表示
-				game.replaceScene(createSceneS020(game));
-			}
-
-			// n秒経過
-			if (countFrame == CORE_FPS * (6 + 5)) {
-				// s030 スタートページを表示
-				game.replaceScene(createSceneS030(game));
-				// todo イベントリスナーを削除
-			}
-			console.log(countFrame);
-			countFrame++;
-		});
 
 		// s010 チームロゴ画面の読み込み
+		// s010 -> s020 -> s030 と遷移する
+		// デバッグ時はs030へすっ飛ばす
+		// var currentScene = createSceneS030(game);
 		var currentScene = createSceneS010(game);
 
-		// s010 画面のフェードイン、フェードアウト
-		// currentScene シーンのイベント
-		// game.rootScene ゲーム全体のイベント
-		currentScene.addEventListener(Event.ENTER_FRAME, function () {
-			// jQueryでフェードイン
-			if (countFrame == 0) {
-				$(currentScene.element()).hide().fadeIn(500);
-			}
+		// todo 前画面の要素を削除するべし
 
-			// n秒経過
-			if (countFrame == CORE_FPS * 4.5) {
-				// jQueryでフェードアウト
-				$(currentScene.element()).fadeOut(500);
-			}
-
-		});
 
 		// 現在表示しているシーンを次のシーンに置き換える
-		//game.replaceScene(currentScene);
+		game.replaceScene(currentScene);
 
-		// サウンドロゴ
-		game.assets['mp3/se0028.mp3'].play();
+		// todo 全体的に音量大きすぎない？
 
 	}
 

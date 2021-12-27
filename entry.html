@@ -29,18 +29,25 @@
 		}
 	</style>
 
-<!-- 画面単体 -->
-<script type="text/javascript" src="js/s010.js"></script>
-<script type="text/javascript" src="js/s020.js"></script>
-<script type="text/javascript" src="js/s030.js"></script>
+	<!-- 画面単体 -->
+	<script type="text/javascript" src="js/s010.js"></script>
+	<script type="text/javascript" src="js/s020.js"></script>
+	<script type="text/javascript" src="js/s030.js"></script>
+	<script type="text/javascript" src="js/s040.js"></script>
 
-<script type="text/javascript" src="js/midi001.js"></script>
+	<script type="text/javascript" src="js/midi001.js"></script>
 
 	<script type="text/javascript" src="js/game.js"></script>
 	<script type="text/javascript">
 		function launchGame() {
 			goFullScreen();
-			startGame();
+
+			// 無名関数と遅延実行 200ms(ミリ秒)
+			// windowサイズが最大化直後で正しく取得できない対策
+			window.setTimeout(function () {
+				startGame();
+			}, 200);
+
 		}
 	</script>
 
@@ -48,7 +55,7 @@
 
 <body>
 	<div>スマホの画面を横にして起動してください♪</div>
-	<div><button type=button id="btnFullscreen" onclick="launchGame();">起動</button></div>
+	<div><button type=button id="btnFullscreen" onclick="launchGame();" accesskey="w">起動</button></div>
 	<div id="enchant-stage"></div>
 	<div>
 		<hr />
