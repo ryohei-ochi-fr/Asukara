@@ -48,19 +48,21 @@ function startGame() {
 	game.fps = CORE_FPS;
 
 	// nowLoading.jsで上書きされたローディング画面が表示される
+	// todo 容量の大きなものを前に持ってくると、ローディングがいい感じかも
 	game.preload(
-		// s010 チームロゴ
-		// todo サウンドのフェードイン
+		// MP3を先に読む
+		PLAYSONG,
+		'mp3/00039_hajimari.mp3',
+		'mp3/00093_The_Snowmobile.mp3',
 		'mp3/se0028.mp3',
+		// s010 チームロゴ
 		'img/s010_ashita_logo.png',
 		// s020 注意画面
 		'img/s020.png',
 		// s030 スタート画面
-		'img/s030.jpg',
-		'mp3/00039_hajimari.mp3',
+		'img/s030.png',
 		// s040 メニュー画面
 		'img/s040.png',
-		'mp3/00093_The Snowmobile.mp3',
 		// s090 ローディング画面(曲紹介だけで何もしていない)
 		'img/s090.png',
 		// s100 プレイ画面
@@ -75,7 +77,6 @@ function startGame() {
 		'img/s300.png',
 		// other
 		// 'mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3',
-		PLAYSONG,
 	);
 
 	game.onload = function () {
@@ -92,10 +93,10 @@ function startGame() {
 		// var currentScene = createSceneS090(game);
 
 		// デバッグ時はs100へすっ飛ばす
-		var currentScene = createSceneS100(game);
+		// var currentScene = createSceneS100(game);
 
 		// リリースするときはここから
-		// var currentScene = createSceneS010(game);
+		var currentScene = createSceneS010(game);
 
 		// todo 前画面の要素を削除するべし
 

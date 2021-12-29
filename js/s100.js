@@ -1,6 +1,7 @@
 function createSceneS100(core) {
 
     var scene = new Scene();
+    scene.backgroundColor = '#ffffff';
 
     // 背景を生成
     var bg = new Sprite(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -147,26 +148,62 @@ function createSceneS100(core) {
 
     // 判定結果のスプライトを定義
     // todo こういう雑多なパーツは、s100_parts.jsとかに書き出したほうが良い？ → 別ファイルの実行タイミングとかの問題は？
-    // var goodSprite = Class.create();
+    var perfectSprite = Class.create(Sprite, {
+        initialize: function () {
+            //Spriteクラスのメソッドを、thisでも使えるようにする
+            Sprite.call(this, 75, 14);
+            this.image = core.assets['img/PERFECT.png'];
+            this.x = 640 / 2 - this.width / 2;
+            this.y = 320 / 2;
+        },
+        onenterframe: function () {
+            //フェードアウト
+            this.opacity -= 0.05;
+            //フェードアウトが完了したらスプライトを削除(自滅)
+            if (this.opacity <= 0) {
+                this.parentNode.removeChild(this);
+            };
+        }
+    });
 
+    var goodSprite = Class.create(Sprite, {
+        initialize: function () {
+            //Spriteクラスのメソッドを、thisでも使えるようにする
+            Sprite.call(this, 52, 14);
+            this.image = core.assets['img/GOOD.png'];
+            this.x = 640 / 2 - this.width / 2;
+            this.y = 320 / 2;
+        },
+        onenterframe: function () {
+            //フェードアウト
+            this.opacity -= 0.05;
+            //フェードアウトが完了したらスプライトを削除(自滅)
+            if (this.opacity <= 0) {
+                this.parentNode.removeChild(this);
+            };
+        }
+    });
 
-    var goodSprite = new Sprite(52, 14);
-    // スプライトの設定諸々
-    goodSprite.image = core.assets['img/GOOD.png'];
-    // todo 計算で求めよう
-    goodSprite.x = 640 / 2 - 52 / 2;
-    goodSprite.y = 320 / 2;
+    var missSprite = Class.create(Sprite, {
+        initialize: function () {
+            //Spriteクラスのメソッドを、thisでも使えるようにする
+            Sprite.call(this, 38, 14);
+            this.image = core.assets['img/MISS.png'];
+            this.x = 640 / 2 - this.width / 2;
+            this.y = 320 / 2;
+        },
+        onenterframe: function () {
+            //フェードアウト
+            this.opacity -= 0.05;
+            //フェードアウトが完了したらスプライトを削除(自滅)
+            if (this.opacity <= 0) {
+                this.parentNode.removeChild(this);
+            };
+        }
+    });
 
-    goodSprite.onenterframe = function () {
-        //フェードアウト
-        this.opacity -= 0.05;
-        //フェードアウトが完了したらスプライトを削除(自滅)
-        if (this.opacity <= 0) {
-            this.parentNode.removeChild(this);
-        };
-    };
-
-    scene.addChild(goodSprite);
+    // 消滅の確認用
+    // scene.addChild(new goodSprite());
 
     // todo 後で消す タッチイベントを設定 デバッグ用リスタート
     scene.addEventListener('touchstart', function (evt) {
@@ -183,11 +220,16 @@ function createSceneS100(core) {
         var touchTimeMs = currentTime.getTime() - startTime.getTime();
         // console.log('touchstart:  ' + touchTimeMs + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
 
+        // MIDIデータの配列から発音時間を探す
         const getNoteFunction = (element) => element[1] >= ((touchTimeMs - judgeTimeMs) / 1000);
-
         nowNote = midiData[0].findIndex(getNoteFunction)
+
+        // nowNote は、配列のインデックス、ノーツデータの配列から X方向の判定ができる
+        // todo あとで実装する
+
         if (nowNote != -1) {
             // 配列から値が取得できた場合
+            // todo X方向の判定
 
             // console.log(nowNote);
             // console.log(midiData[0][nowNote]);
@@ -215,30 +257,47 @@ function createSceneS100(core) {
                     // 先行のどこかでSEとして音を出しておくとか？ベロシティー0で発音するとか？
                     synth.send([0x91, midiData[0][nowNote][0], 100]);
                     // roomに送信
-                    room.send('note: 0,' + midiData[0][nowNote][0]);
+                    // room.send('note: 0,' + midiData[0][nowNote][0]);
 
                     // パーフェクト判定
                     if (judgePerfectMs >= judgeDiffMs) {
                         // パーフェクトアニメーション
+                        scene.addChild(new perfectSprite());
                         console.log('Perfect');
                         resultScore += 100;
 
+                    } else if (judgeTimeMs < judgeDiffMs) {
+                        // ミスアニメーション
+                        // todo たぶんここ判定に入らない
+
                     } else {
-                        // ノーマルアニメーション
-                        console.log('Nomal');
+                        // グッドアニメーション
+                        scene.addChild(new goodSprite());
+                        console.log('Good');
                         resultScore += 80;
 
                     }
+                    labelScore.text = resultScore;
                     console.log('resultScore =' + resultScore);
 
                     // コンボ判定用にインデックス(nowNote)を保存
                     // todo 間に合えば実装する
-                }
 
+                } else {
+                    // ミスアニメーション
+                    scene.addChild(new missSprite());
+                    console.log('Miss 1');
+
+                }
             }
 
             // todo コンボの判定
             // 配列の操作でうまくできるよ？
+        } else {
+            // todo ミスの判定が雑、叩くべきノーツが通過したりとかもミス
+            // ミスアニメーション
+            scene.addChild(new missSprite());
+            console.log('Miss 2');
         }
 
         // todo 後で消すデバッグ用
@@ -268,6 +327,17 @@ function createSceneS100(core) {
     labelScoreNotes = new Label('scoreNotes.y 0px');
     labelScoreNotes.y = 80;
     scene.addChild(labelScoreNotes);
+
+    // スコア表示のラベル
+    labelScore = new Label('0');
+    labelScore.color = '#000000';
+    labelScore.font = '36px "Noto Sans JP",sans-serif';
+    labelScore.textAlign = 'right';
+    // todo デバック用仮の配置 あとで微調整
+    labelScore.width = 150;
+    labelScore.x = 0;
+    labelScore.y = 0;
+    scene.addChild(labelScore);
 
     var callFps = 0;
     var callFlag = true;

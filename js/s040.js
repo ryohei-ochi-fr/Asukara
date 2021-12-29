@@ -15,7 +15,8 @@ function createSceneS040(core) {
     // Surfaceオブジェクトを生成しスプライトに連結
     var surface = new Surface(buttonWidth, buttonHeight);
     // 四角形を描く 
-    surface.context.fillStyle = "#FF000080";
+    // surface.context.fillStyle = "#FF000080";
+    surface.context.fillStyle = "#FF000000";
     surface.context.fillRect(0, 0, buttonWidth, buttonHeight);
     // スプライトの設定諸々
     playButton.image = surface;
@@ -24,7 +25,7 @@ function createSceneS040(core) {
 
     // タッチイベントを設定
     playButton.addEventListener('touchstart', function (evt) {
-        core.assets['mp3/00093_The Snowmobile.mp3'].stop();
+        core.assets['mp3/00093_The_Snowmobile.mp3'].stop();
         core.replaceScene(createSceneS090(core));
 
     });
@@ -33,7 +34,7 @@ function createSceneS040(core) {
 
     // サウンドロゴ
     // todo ループの処理
-    core.assets['mp3/00093_The Snowmobile.mp3'].play();
+    core.assets['mp3/00093_The_Snowmobile.mp3'].play();
 
     // シーンを返す
     return scene;

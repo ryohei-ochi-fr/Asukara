@@ -9,7 +9,7 @@ function createSceneS030(core) {
 
     // 背景を生成
     var bg = new Sprite(SCREEN_WIDTH, SCREEN_HEIGHT);
-    bg.image = core.assets['img/s030.jpg'];
+    bg.image = core.assets['img/s030.png'];
     scene.addChild(bg);
 
     // スタートボタン
@@ -19,7 +19,8 @@ function createSceneS030(core) {
     // Surfaceオブジェクトを生成しスプライトに連結
     var surface = new Surface(buttonWidth, buttonHeight);
     // 四角形を描く 
-    surface.context.fillStyle = "#FF000080";
+    // surface.context.fillStyle = "#FF000080";
+    surface.context.fillStyle = "#FF000000";
     surface.context.fillRect(0, 0, buttonWidth, buttonHeight);
 
     // スプライトの設定諸々

@@ -15,7 +15,8 @@ function createSceneS300(core) {
     // Surfaceオブジェクトを生成しスプライトに連結
     var surface = new Surface(buttonWidth, buttonHeight);
     // 四角形を描く 
-    surface.context.fillStyle = "#FF000080";
+    // surface.context.fillStyle = "#FF000080";
+    surface.context.fillStyle = "#FF000000";
     surface.context.fillRect(0, 0, buttonWidth, buttonHeight);
     // スプライトの設定諸々
     playButton.image = surface;
