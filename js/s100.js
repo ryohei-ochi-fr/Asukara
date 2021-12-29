@@ -17,11 +17,14 @@ function createSceneS100(core) {
     // ノーツを配置するための譜面の幅
     const notesMaxWidth = 450;
 
+    // ノーツ1音を描画する幅(px)
+    const notesWidth = 150;
+
     // ノーツ1音を描画する高さ(px)
     const notesHight = 50;
 
-    // ノーツ1音を描画する幅(px)
-    const notesWidth = 150;
+    // 判定ゾーンを描画する高さ(px)
+    const judgeHight = 60;
 
     // 1秒あたりの譜面移動量(px)
     const pxPerSec = SCREEN_HEIGHT;
@@ -49,10 +52,6 @@ function createSceneS100(core) {
     // 譜面の初期位置
     scoreNotes.x = 95 + 1
     scoreNotes.y = 0 - notesLength + 360;
-
-    // todo なんかメトロノーム的な緑と比較して、数フレーム分譜面が早い、原因は不明だけど微調整
-    // 0fps 最初の描画、割り込みの問題かも？
-    //scoreNotes.y -= 5;
 
     // 検証用 midiData
     // midiData = [
@@ -84,18 +83,12 @@ function createSceneS100(core) {
         }
 
         // timming(px) = 待機時間(px) + ノーツの出現時間(秒) * 1秒あたりのスクロール数(px) 360px
-        var timming = Math.floor(note[1] * 360);
-        // timming = note[1] * 360;
-        // timming = SCREEN_HEIGHT * 1 + note[1]  * pxPerSec;
-        // midiData制作上の都合 第1小節の確保(bpmから1小節の秒数)
-        // timming += 1.519;
-
-        console.log('timming is: ' + timming + ",", lane);
+        var timming = Math.floor(note[1] * pxPerSec);
+        // console.log('timming is: ' + timming + ",", lane);
 
         // 149pxはノーツの幅
         surface1.context.fillRect(lane, notesLength - timming - notesHight, 149, notesHight);
-
-        console.log('height is: ' + (notesLength - timming - notesHight) + 'px');
+        // console.log('height is: ' + (notesLength - timming - notesHight) + 'px');
 
     })
 
@@ -127,21 +120,22 @@ function createSceneS100(core) {
     scene.addChild(judgeNote);
 
     // 判定ゾーンを生成
-    var sprite = new Sprite(notesMaxWidth, notesHight);
+    var sprite = new Sprite(notesMaxWidth, judgeHight);
     // Surfaceオブジェクトを生成しスプライトに連結
-    var surface = new Surface(notesMaxWidth, notesHight);
+    var surface = new Surface(notesMaxWidth, judgeHight);
     // 四角形を描く 透明度 0x80h = 50%(128/256)
     surface.context.fillStyle = "#E7B3FA80";
-    surface.context.fillRect(0, 0, notesMaxWidth - 1, notesHight);
+    surface.context.fillRect(0, 0, notesMaxWidth - 1, judgeHight);
     // スプライトの設定諸々
     sprite.image = surface;
     sprite.x = 95 + 1
-    sprite.y = 285
+    // todo 計算で求めよう
+    sprite.y = 275
     scene.addChild(sprite);
 
     // タッチイベントを設定 デバッグ用リスタート
     scene.addEventListener('touchstart', function (evt) {
-        if(evt.x < 80){
+        if (evt.x < 80) {
             bgm.stop();
             core.replaceScene(createSceneS100(core));
         }
@@ -149,11 +143,27 @@ function createSceneS100(core) {
 
     // タッチイベントを設定
     sprite.addEventListener('touchstart', function (evt) {
-        // 発音
-        synth.send([0x91, 60, 100]);
+        var touchTime = currentTime.getTime() - startTime.getTime();
+        console.log('touchstart:  ' + touchTime + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
+
+        const isLargeNumber3 = (element) => element[1] >= ((touchTime - 166) / 1000);
+
+        console.log((touchTime - 166) / 1000);
+        
+        nowNote = midiData[0].findIndex(isLargeNumber3)
+        if(nowNote != -1){
+            console.log(nowNote);
+            console.log(midiData[0][nowNote]);
+            console.log(midiData[0][nowNote][0]);
+    
+            // 発音
+            synth.send([0x91, midiData[0][nowNote][0], 100]);
+    
+        }
 
         var touchTime = currentTime.getTime() - startTime.getTime();
-        // console.log('touchstart:  ' + touchTime + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
+        console.log('tapTime: ' + touchTime + 'ms');
+
         labelTapTime.text = 'tap ' + touchTime + 'ms';
         labelGapTime.text = 'gap ' + (touchTime - judgeTime) + 'ms';
 
@@ -190,12 +200,12 @@ function createSceneS100(core) {
 
     var moveHeight = 6;
 
-    // スプライトの当たり判定
+    // スプライトの当たり判定 デバッグ用
     judgeLine.on(Event.ENTER_FRAME, function (evt) {
         if (judgeLine.intersect(judgeNote)) {
             if (judgeFirstFlag) {
                 judgeTime = currentTime.getTime() - startTime.getTime();
-                console.log('judgeLine:  ' + judgeTime + 'ms');
+                // console.log('judgeLine:  ' + judgeTime + 'ms');
                 labeljudgeTime.text = 'judge ' + judgeTime + 'ms';
                 labelScoreNotes.text = 'scoreNotes.y ' + scoreNotes.y + 'px';
                 judgeFirstFlag = false;
@@ -207,9 +217,8 @@ function createSceneS100(core) {
 
     scoreNotes.on(Event.ENTER_FRAME, function (evt) {
         if (callFlag) {
-            // ここで60フレーム待っているから、初タップまでの序奏開始時間1秒は無視でよし
 
-            // いや、曲の鳴り出しまでは3秒で 60fps * 3sec
+            // 曲の鳴り出しまでは3秒で 60fps * 3sec
             if (callFps >= CORE_FPS * stanbySec) {
                 callFlag = false;
                 // 判定ライン幅 100ms
