@@ -65,6 +65,10 @@ function startGame() {
 		'img/s090.png',
 		// s100 プレイ画面
 		'img/s100.png',
+		'img/PERFECT.png',
+		'img/GOOD.png',
+		'img/MISS.png',
+		'img/resultScore_sample.png',
 		// s200 スコア画面
 		'img/s200.png',
 		// s300 クレジット画面

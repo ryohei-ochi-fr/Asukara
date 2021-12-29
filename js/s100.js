@@ -132,20 +132,43 @@ function createSceneS100(core) {
     // scene.addChild(judgeNote);
 
     // 判定ゾーンを生成
-    var sprite = new Sprite(notesMaxWidth, judgeHight);
+    var judgeSprite = new Sprite(notesMaxWidth, judgeHight);
     // Surfaceオブジェクトを生成しスプライトに連結
     var surface = new Surface(notesMaxWidth, judgeHight);
     // 四角形を描く 透明度 0x80h = 50%(128/256)
     surface.context.fillStyle = "#E7B3FA80";
     surface.context.fillRect(0, 0, notesMaxWidth - 1, judgeHight);
     // スプライトの設定諸々
-    sprite.image = surface;
-    sprite.x = 95 + 1
+    judgeSprite.image = surface;
+    judgeSprite.x = 95 + 1;
     // todo 計算で求めよう
-    sprite.y = 275
-    scene.addChild(sprite);
+    judgeSprite.y = 275;
+    scene.addChild(judgeSprite);
 
-    // タッチイベントを設定 デバッグ用リスタート
+    // 判定結果のスプライトを定義
+    // todo こういう雑多なパーツは、s100_parts.jsとかに書き出したほうが良い？ → 別ファイルの実行タイミングとかの問題は？
+    // var goodSprite = Class.create();
+
+
+    var goodSprite = new Sprite(52, 14);
+    // スプライトの設定諸々
+    goodSprite.image = core.assets['img/GOOD.png'];
+    // todo 計算で求めよう
+    goodSprite.x = 640 / 2 - 52 / 2;
+    goodSprite.y = 320 / 2;
+
+    goodSprite.onenterframe = function () {
+        //フェードアウト
+        this.opacity -= 0.05;
+        //フェードアウトが完了したらスプライトを削除(自滅)
+        if (this.opacity <= 0) {
+            this.parentNode.removeChild(this);
+        };
+    };
+
+    scene.addChild(goodSprite);
+
+    // todo 後で消す タッチイベントを設定 デバッグ用リスタート
     scene.addEventListener('touchstart', function (evt) {
         if (evt.x < 80) {
             bgm.stop();
@@ -154,7 +177,7 @@ function createSceneS100(core) {
     });
 
     // タッチイベントを設定
-    sprite.addEventListener('touchstart', function (evt) {
+    judgeSprite.addEventListener('touchstart', function (evt) {
 
         // タッチ(タップ)した時間
         var touchTimeMs = currentTime.getTime() - startTime.getTime();
@@ -179,33 +202,39 @@ function createSceneS100(core) {
             console.log('touchTimeMs:' + touchTimeMs);
             console.log('judgeDiffMs:' + judgeDiffMs);
 
-            if(Math.sign(judgeDiffMs)){
-                // 負の数の場合は通過している(ハズ)
+            // if(Math.sign(judgeDiffMs) != -1){
+            // 負の数の場合は通過している(ハズ)
+            // todo いろいろ判定ミスがあるなー
+            if (true) {
 
                 if (judgeTimeMs >= judgeDiffMs) {
                     // 判定時間に収まっていれば発音(ノーマル判定)
-    
-                    // 発音
+
+                    // MIDI音源で正しい音階で発音する
+                    // todo 一番最初の発音が濁ることがあるので、
+                    // 先行のどこかでSEとして音を出しておくとか？ベロシティー0で発音するとか？
                     synth.send([0x91, midiData[0][nowNote][0], 100]);
                     // roomに送信
                     room.send('note: 0,' + midiData[0][nowNote][0]);
-    
+
                     // パーフェクト判定
-                    if(judgePerfectMs >= judgeDiffMs){
+                    if (judgePerfectMs >= judgeDiffMs) {
                         // パーフェクトアニメーション
+                        console.log('Perfect');
                         resultScore += 100;
-    
-                    }else{
+
+                    } else {
                         // ノーマルアニメーション
+                        console.log('Nomal');
                         resultScore += 80;
-                       
+
                     }
                     console.log('resultScore =' + resultScore);
-    
+
                     // コンボ判定用にインデックス(nowNote)を保存
                     // todo 間に合えば実装する
                 }
-    
+
             }
 
             // todo コンボの判定
