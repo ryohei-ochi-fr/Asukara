@@ -88,10 +88,10 @@ function startGame() {
 		// var currentScene = createSceneS090(game);
 
 		// デバッグ時はs100へすっ飛ばす
-		// var currentScene = createSceneS100(game);
+		var currentScene = createSceneS100(game);
 
 		// リリースするときはここから
-		var currentScene = createSceneS010(game);
+		// var currentScene = createSceneS010(game);
 
 		// todo 前画面の要素を削除するべし
 

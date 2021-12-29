@@ -26,6 +26,18 @@ function createSceneS100(core) {
     // 判定ゾーンを描画する高さ(px)
     const judgeHight = 60;
 
+    // 発音の判定時間(ms)
+    // todo ほんとは計算して設定すべき 判定幅60px 移動高さ6px 10fps
+    // 1 / 60 * 10 = 0.16666...(秒) * 1000 = 166ms 
+    const judgeTimeMs = 166;
+
+    // パーフェクト判定する時間(ms) 3fps
+    // 1 / 60 * 3 = 0.05(秒) * 1000 = 50ms
+    const judgePerfectMs = 50;
+
+    // スコア集計
+    var resultScore = 0;
+
     // 1秒あたりの譜面移動量(px)
     const pxPerSec = SCREEN_HEIGHT;
 
@@ -117,7 +129,7 @@ function createSceneS100(core) {
     judgeNote.x = 95;
     judgeNote.y = 0 - notesHight;
     // コメントアウトして非表示
-    scene.addChild(judgeNote);
+    // scene.addChild(judgeNote);
 
     // 判定ゾーンを生成
     var sprite = new Sprite(notesMaxWidth, judgeHight);
@@ -143,29 +155,66 @@ function createSceneS100(core) {
 
     // タッチイベントを設定
     sprite.addEventListener('touchstart', function (evt) {
-        var touchTime = currentTime.getTime() - startTime.getTime();
-        console.log('touchstart:  ' + touchTime + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
 
-        const isLargeNumber3 = (element) => element[1] >= ((touchTime - 166) / 1000);
+        // タッチ(タップ)した時間
+        var touchTimeMs = currentTime.getTime() - startTime.getTime();
+        // console.log('touchstart:  ' + touchTimeMs + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
 
-        console.log((touchTime - 166) / 1000);
-        
-        nowNote = midiData[0].findIndex(isLargeNumber3)
-        if(nowNote != -1){
-            console.log(nowNote);
-            console.log(midiData[0][nowNote]);
+        const getNoteFunction = (element) => element[1] >= ((touchTimeMs - judgeTimeMs) / 1000);
+
+        nowNote = midiData[0].findIndex(getNoteFunction)
+        if (nowNote != -1) {
+            // 配列から値が取得できた場合
+
+            // console.log(nowNote);
+            // console.log(midiData[0][nowNote]);
+            // MIDIデータ上の発音する音階
             console.log(midiData[0][nowNote][0]);
+            // MIDIデータ上の正しい発音の時間(発音時間)
+            console.log(midiData[0][nowNote][1]);
+
+            // 判定時間(秒をmsに変換) - タッチ時間
+            var judgeDiffMs = (midiData[0][nowNote][1] * 1000) - touchTimeMs;
+
+            console.log('touchTimeMs:' + touchTimeMs);
+            console.log('judgeDiffMs:' + judgeDiffMs);
+
+            if(Math.sign(judgeDiffMs)){
+                // 負の数の場合は通過している(ハズ)
+
+                if (judgeTimeMs >= judgeDiffMs) {
+                    // 判定時間に収まっていれば発音(ノーマル判定)
     
-            // 発音
-            synth.send([0x91, midiData[0][nowNote][0], 100]);
+                    // 発音
+                    synth.send([0x91, midiData[0][nowNote][0], 100]);
+                    // roomに送信
+                    room.send('note: 0,' + midiData[0][nowNote][0]);
     
+                    // パーフェクト判定
+                    if(judgePerfectMs >= judgeDiffMs){
+                        // パーフェクトアニメーション
+                        resultScore += 100;
+    
+                    }else{
+                        // ノーマルアニメーション
+                        resultScore += 80;
+                       
+                    }
+                    console.log('resultScore =' + resultScore);
+    
+                    // コンボ判定用にインデックス(nowNote)を保存
+                    // todo 間に合えば実装する
+                }
+    
+            }
+
+            // todo コンボの判定
+            // 配列の操作でうまくできるよ？
         }
 
-        var touchTime = currentTime.getTime() - startTime.getTime();
-        console.log('tapTime: ' + touchTime + 'ms');
-
-        labelTapTime.text = 'tap ' + touchTime + 'ms';
-        labelGapTime.text = 'gap ' + (touchTime - judgeTime) + 'ms';
+        // todo 後で消すデバッグ用
+        labelTapTime.text = 'tap ' + touchTimeMs + 'ms';
+        labelGapTime.text = 'gap ' + (touchTimeMs - judgeTime) + 'ms';
 
     });
 
@@ -254,8 +303,8 @@ function createSceneS100(core) {
             // this.y += SCREEN_HEIGHT / 60;
             this.y += moveHeight;
         }
-        var touchTime = currentTime.getTime() - startTime.getTime();
-        labelTime.text = 'current ' + touchTime + 'ms';
+        var touchTimeMs = currentTime.getTime() - startTime.getTime();
+        labelTime.text = 'current ' + touchTimeMs + 'ms';
 
 
         // メトロノーム的な緑のやつのループ

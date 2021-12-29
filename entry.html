@@ -7,6 +7,9 @@
 	<meta name="viewport" content="width=device-width,height=device-height,user-scalable=no">
 
 	<title>Asukara</title>
+	<!-- スタイルシート -->
+	<link rel="stylesheet" href="css/skyway_p2p.css">
+
 	<!-- インクルード的な物たち -->
 	<script type="text/javascript" src="inc/enchant.js"></script>
 	<script type="text/javascript" src="inc/nowLoading.js"></script>
@@ -56,15 +59,15 @@
 	<!-- MIDI音源の読み込み -->
 	<script type="text/javascript">
 		// var synth = new WebAudioTinySynth();
-		var synth = new WebAudioTinySynth({quality:1, useReverb:0, voices:32});
-		
+		var synth = new WebAudioTinySynth({ quality: 1, useReverb: 0, voices: 32 });
+
 		// ch: 0, pg: 27 electro; guitter
 		// synth.setProgram(0, 27);
 		// synth.send([0xc0,27]);
 		var timber = 26;
 		synth.send([0xc0, timber]);
 
-		function btnActhion(data){
+		function btnActhion(data) {
 			document.getElementById("status").innerHTML = synth.getTimbreName(0, timber);
 
 			synth.send(data);
@@ -100,6 +103,29 @@
 		<button onmousedown="btnActhion([0x90,60,100])" onmouseup="btnActhion([0x80,60,0])">発音 C</button>
 		<p id="status"></p>
 	</div>
+
+	<!-- WebRTCを用いた、SkyWayの外部サービス -->
+	<!-- <div class="container" style="visibility: hidden;"> -->
+	<div class="container">
+		<div class="room">
+			<div>
+				<!-- <video id="js-local-stream"></video> -->
+				<span id="js-room-mode"></span>:
+				<input type="text" placeholder="Room Name" id="js-room-id">
+				<button id="js-join-trigger">Join</button>
+				<button id="js-leave-trigger">Leave</button>
+			</div>
+			<div>
+				<pre class="messages" id="js-messages"></pre>
+				<input type="text" id="js-local-text">
+				<button id="js-send-trigger">Send</button>
+			</div>
+			<div class="remote-streams" id="js-remote-streams"></div>
+		</div>
+		<p class="meta" id="js-meta"></p>
+	</div>
+	<script src="//cdn.webrtc.ecl.ntt.com/skyway-4.4.3.js"></script>
+	<script type="text/javascript" src="inc/skyway_p2p.js"></script>
 </body>
 
 </html>
