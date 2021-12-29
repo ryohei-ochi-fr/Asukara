@@ -7,7 +7,7 @@ function createSceneS100(core) {
     bg.image = core.assets['img/s100.png'];
     scene.addChild(bg);
 
-    bgm = core.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'];
+    var bgm = core.assets[PLAYSONG];
 
     // イベントのログ表示用 丸め関数
     var round = function (num) {
@@ -24,35 +24,53 @@ function createSceneS100(core) {
     const notesWidth = 150;
 
     // 1秒あたりの譜面移動量(px)
-    const pxPerSec = 300;
+    const pxPerSec = SCREEN_HEIGHT;
+
+    // 音を出すまでの待機秒
+    const stanbySec = 3;
 
     // 曲の長さ(秒)
-    const midiDuration = 100;
+    const midiDuration = 90;
 
-    // 譜面の長さ 300px x 100sec
-    const notesLength = pxPerSec * midiDuration;
+    // 譜面の長さ 360px x 100sec + stanbySec
+    const notesLength = pxPerSec * (midiDuration + stanbySec);
+    console.log('notesLength = ' + notesLength);
 
     // 譜面のスプライトを生成
-    var sprite1 = new Sprite(notesMaxWidth, notesLength);
+    var scoreNotes = new Sprite(notesMaxWidth, notesLength);
     // Surfaceオブジェクトを生成しスプライトに連結
     var surface1 = new Surface(notesMaxWidth, notesLength);
-    sprite1.image = surface1;
-    scene.addChild(sprite1);
+    scoreNotes.image = surface1;
+    scene.addChild(scoreNotes);
 
     // 譜面にノーツを描く色を先行して設定
     surface1.context.fillStyle = "#B1CFFC";
 
     // 譜面の初期位置
-    sprite1.x = 95 + 1
-    sprite1.y = 0 - notesLength;
+    scoreNotes.x = 95 + 1
+    scoreNotes.y = 0 - notesLength + 360;
 
-    // todo なんか判定エリアとずれてない？
+    // todo なんかメトロノーム的な緑と比較して、数フレーム分譜面が早い、原因は不明だけど微調整
+    // 0fps 最初の描画、割り込みの問題かも？
+    //scoreNotes.y -= 5;
+
+    // 検証用 midiData
+    // midiData = [
+    //     [50, 0],
+    //     [50, 1],
+    //     [50, 2],
+    //     [50, 3],
+    //     [50, 4],
+    //     [50, 5],
+    //     [50, 6],
+    //     [50, 7],
+    //     [50, 8],
+    //     [50, 9],
+    // ];
 
     var lane = 0;
-    midiData.forEach(note => {
-        // midiの1音のデータ(ノーツ)を書き出してみる
-        // console.log(note.midi, note.time, note.duration, note.name);
-        // console.log(note[0] + ",", note[1]);
+    notesData[0].forEach(note => {
+        // midiDataの1音の音程をレーン配置に変換する
         switch (note[0]) {
             case 48:
                 lane = 0;
@@ -64,14 +82,20 @@ function createSceneS100(core) {
                 lane = 300;
                 break;
         }
-        // ノーツの出現時間(秒) * 1秒あたりのスクロール数(px) 300px
-        timming = note[1] * pxPerSec;
-        // console.log(timming + ",", lane);
 
-        // surface1.context.fillStyle = "#B1CFFC";
+        // timming(px) = 待機時間(px) + ノーツの出現時間(秒) * 1秒あたりのスクロール数(px) 360px
+        var timming = Math.floor(note[1] * 360);
+        // timming = note[1] * 360;
+        // timming = SCREEN_HEIGHT * 1 + note[1]  * pxPerSec;
+        // midiData制作上の都合 第1小節の確保(bpmから1小節の秒数)
+        // timming += 1.519;
+
+        console.log('timming is: ' + timming + ",", lane);
+
+        // 149pxはノーツの幅
         surface1.context.fillRect(lane, notesLength - timming - notesHight, 149, notesHight);
 
-        // console.log('notes is: ' + (notesLength - timming - notesHight));
+        console.log('height is: ' + (notesLength - timming - notesHight) + 'px');
 
     })
 
@@ -100,7 +124,7 @@ function createSceneS100(core) {
     judgeNote.x = 95;
     judgeNote.y = 0 - notesHight;
     // コメントアウトして非表示
-    // scene.addChild(judgeNote);
+    scene.addChild(judgeNote);
 
     // 判定ゾーンを生成
     var sprite = new Sprite(notesMaxWidth, notesHight);
@@ -114,6 +138,26 @@ function createSceneS100(core) {
     sprite.x = 95 + 1
     sprite.y = 285
     scene.addChild(sprite);
+
+    // タッチイベントを設定 デバッグ用リスタート
+    scene.addEventListener('touchstart', function (evt) {
+        if(evt.x < 80){
+            bgm.stop();
+            core.replaceScene(createSceneS100(core));
+        }
+    });
+
+    // タッチイベントを設定
+    sprite.addEventListener('touchstart', function (evt) {
+        // 発音
+        synth.send([0x91, 60, 100]);
+
+        var touchTime = currentTime.getTime() - startTime.getTime();
+        // console.log('touchstart:  ' + touchTime + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
+        labelTapTime.text = 'tap ' + touchTime + 'ms';
+        labelGapTime.text = 'gap ' + (touchTime - judgeTime) + 'ms';
+
+    });
 
     // 時間の画面表示
     // todo このブロックはデバッグ用なので後で消す
@@ -133,15 +177,9 @@ function createSceneS100(core) {
     labelGapTime.y = 60;
     scene.addChild(labelGapTime);
 
-    // タッチイベントを設定
-    sprite.addEventListener('touchstart', function (evt) {
-        var touchTime = currentTime.getTime() - startTime.getTime();
-        // console.log('touchstart:  ' + touchTime + 'ms (' + round(evt.x) + ', ' + round(evt.y) + ')');
-        labelTapTime.text = 'tap ' + touchTime + 'ms';
-        labelGapTime.text = 'gap ' + (touchTime - judgeTime) + 'ms';
-
-    });
-
+    labelScoreNotes = new Label('scoreNotes.y 0px');
+    labelScoreNotes.y = 80;
+    scene.addChild(labelScoreNotes);
 
     var callFps = 0;
     var callFlag = true;
@@ -150,13 +188,16 @@ function createSceneS100(core) {
     var startTime;
     var judgeFirstFlag = true;
 
+    var moveHeight = 6;
+
     // スプライトの当たり判定
     judgeLine.on(Event.ENTER_FRAME, function (evt) {
         if (judgeLine.intersect(judgeNote)) {
             if (judgeFirstFlag) {
                 judgeTime = currentTime.getTime() - startTime.getTime();
-                // console.log('judgeLine:  ' + judgeTime + 'ms');
+                console.log('judgeLine:  ' + judgeTime + 'ms');
                 labeljudgeTime.text = 'judge ' + judgeTime + 'ms';
+                labelScoreNotes.text = 'scoreNotes.y ' + scoreNotes.y + 'px';
                 judgeFirstFlag = false;
             }
         } else {
@@ -164,46 +205,55 @@ function createSceneS100(core) {
         }
     });
 
-    sprite1.on(Event.ENTER_FRAME, function (evt) {
+    scoreNotes.on(Event.ENTER_FRAME, function (evt) {
         if (callFlag) {
             // ここで60フレーム待っているから、初タップまでの序奏開始時間1秒は無視でよし
-            if (callFps >= 60) {
+
+            // いや、曲の鳴り出しまでは3秒で 60fps * 3sec
+            if (callFps >= CORE_FPS * stanbySec) {
                 callFlag = false;
-                // 判定ライン 100ms
+                // 判定ライン幅 100ms
                 // startTime = new Date();
-                // core.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'].volume = 0.5;
-                // core.assets['mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3'].play();
+                bgm.currentTime = 0;
                 bgm.play();
-                bgm.volume = 0.2;
+                bgm.volume = 0.1;
 
                 // todo 正確にするならコールバック
-                startTime = new Date();
+                // startTime = new Date();
 
             } else {
                 startTime = new Date();
                 currentTime = new Date();
             }
+        } else {
+            // 譜面の移動開始
+
+            // 譜面の終端を判定
+            if (this.y > notesHight) {
+                this.y = 0;
+                // console.log('notes end... next scene')
+                // todo フェードアウトしてからのー
+                bgm.stop();
+                core.replaceScene(createSceneS200(core));
+            }
+
+            // ノーツを描画したのは 1秒 = 300px
+            // 60fpsは Event.ENTER_FRAME が1秒に60回
+            // 300pxが1秒で移動するためには？ 300px / 60 = 5px ということで、5px を加算
+            // いや、実測するとjudgeNoteは1.5秒
+            // 360px / 60fps = 6px
+            // this.y += SCREEN_HEIGHT / 60;
+            this.y += moveHeight;
         }
         var touchTime = currentTime.getTime() - startTime.getTime();
         labelTime.text = 'current ' + touchTime + 'ms';
 
-        // ノーツを描画したのは 1秒 = 300px
-        // 60fpsは Event.ENTER_FRAME が1秒に60回
-        // 300pxが1秒で移動するためには？ 300px / 60 = 5px ということで、5px を加算
-        this.y += 5;
-
-        if (this.y > notesHight) {
-            this.y = 0;
-            // console.log('notes end... next scene')
-            // todo フェードアウトしてからのー
-            core.replaceScene(createSceneS200(core));
-        }
-
-        judgeNote.y += 10 / 2;
 
         // メトロノーム的な緑のやつのループ
-        if (judgeNote.y > 360) {
-            judgeNote.y = 0 - 115;
+        // judgeNote.y += SCREEN_HEIGHT / 60;
+        judgeNote.y += moveHeight;
+        if (judgeNote.y >= SCREEN_HEIGHT) {
+            judgeNote.y = 0;
         }
 
         // 描画後の時間を取得

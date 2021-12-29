@@ -32,8 +32,13 @@
 		}
 	</style>
 
-	<!-- midiデータ -->
-	<script type="text/javascript" src="js/midi001.js"></script>
+	<!-- MIDI音源の読み込み -->
+	<!-- https://github.com/g200kg/webaudio-tinysynth -->
+	<script src='https://g200kg.github.io/webaudio-tinysynth/webaudio-tinysynth.js'></script>
+
+	<!-- MIDIデータ -->
+	<!-- <script type="text/javascript" src="js/midi001.js"></script> -->
+	<script type="text/javascript" src="js/midi014.js"></script>
 
 	<!-- 画面単体 -->
 	<script type="text/javascript" src="js/s010.js"></script>
@@ -47,6 +52,25 @@
 
 	<!-- ゲーム本体 -->
 	<script type="text/javascript" src="js/game.js"></script>
+
+	<!-- MIDI音源の読み込み -->
+	<script type="text/javascript">
+		// var synth = new WebAudioTinySynth();
+		var synth = new WebAudioTinySynth({quality:1, useReverb:0, voices:32});
+		
+		// ch: 0, pg: 27 electro; guitter
+		// synth.setProgram(0, 27);
+		// synth.send([0xc0,27]);
+		var timber = 26;
+		synth.send([0xc0, timber]);
+
+		function btnActhion(data){
+			document.getElementById("status").innerHTML = synth.getTimbreName(0, timber);
+
+			synth.send(data);
+		}
+	</script>
+
 	<script type="text/javascript">
 		function launchGame() {
 			goFullScreen();
@@ -59,12 +83,11 @@
 
 		}
 	</script>
-
 </head>
 
 <body>
 	<div>スマホの画面を横にして起動してください♪</div>
-	<div><button type=button id="btnFullscreen" onclick="launchGame();" accesskey="w">起動</button></div>
+	<div><button type="button" id="btnFullscreen" onclick="launchGame();" accesskey="w">起動</button></div>
 	<div id="enchant-stage"></div>
 	<div>
 		<hr />
@@ -72,7 +95,11 @@
 			<p>&copy; 2021-2022 <a href="https://twitter.com/AshitaKaraage">明日、唐揚げを食べたい</a></p>
 		</footer>
 	</div>
-
+	<div>
+		<hr />
+		<button onmousedown="btnActhion([0x90,60,100])" onmouseup="btnActhion([0x80,60,0])">発音 C</button>
+		<p id="status"></p>
+	</div>
 </body>
 
 </html>

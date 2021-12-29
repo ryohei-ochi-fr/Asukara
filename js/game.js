@@ -7,6 +7,9 @@ const SCREEN_WIDTH = 640;
 const SCREEN_HEIGHT = 360;
 const CORE_FPS = 60;
 
+// 暫定の固定
+const PLAYSONG = 'mp3/014_shining_star.mp3';
+
 // jQueryを利用するため、
 // enchantの中でHTML要素として画面に表示される要素に対して、
 // elementプロパティでelementを取り出せるようにする。
@@ -67,7 +70,8 @@ function startGame() {
 		// s300 クレジット画面
 		'img/s300.png',
 		// other
-		'mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3',
+		// 'mp3/001_Hatsune_Miku_Tell_Your_World_short.mp3',
+		PLAYSONG,
 	);
 
 	game.onload = function () {
@@ -84,10 +88,10 @@ function startGame() {
 		// var currentScene = createSceneS090(game);
 
 		// デバッグ時はs100へすっ飛ばす
-		// var currentScene = createSceneS100(game);
+		var currentScene = createSceneS100(game);
 
 		// リリースするときはここから
-		var currentScene = createSceneS010(game);
+		// var currentScene = createSceneS010(game);
 
 		// todo 前画面の要素を削除するべし
 
